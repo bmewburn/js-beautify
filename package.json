@@ -62,5 +62,6 @@
     "requirejs": "^2.3.6",
     "webpack": "^4.36.1",
     "webpack-cli": "^3.3.5"
-  }
+  },
+  "private": false
 }
