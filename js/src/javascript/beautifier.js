@@ -36,6 +36,7 @@ var Tokenizer = require('./tokenizer').Tokenizer;
 var line_starters = require('./tokenizer').line_starters;
 var positionable_operators = require('./tokenizer').positionable_operators;
 var TOKEN = require('./tokenizer').TOKEN;
+var PHP = require('../core/php').PHP;
 
 
 function in_array(what, arr) {
@@ -1017,7 +1018,13 @@ Beautifier.prototype.handle_word = function(current_token) {
   if (current_token.previous && (current_token.previous.type === TOKEN.WORD || current_token.previous.type === TOKEN.RESERVED)) {
     this._output.space_before_token = true;
   }
+  if (PHP.isIndentDecrement(current_token)) {
+    this.deindent();
+  }
   this.print_token(current_token);
+  if (PHP.isIndentIncrement(current_token)) {
+    this.indent()
+  }
   this._flags.last_word = current_token.text;
 
   if (current_token.type === TOKEN.RESERVED) {

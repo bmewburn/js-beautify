@@ -32,6 +32,7 @@ var Options = require('../html/options').Options;
 var Output = require('../core/output').Output;
 var Tokenizer = require('../html/tokenizer').Tokenizer;
 var TOKEN = require('../html/tokenizer').TOKEN;
+var PHP = require('../core/php').PHP;
 
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
@@ -434,7 +435,15 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
     printer.add_raw_token(raw_token);
   } else {
     printer.traverse_whitespace(raw_token);
+    if (PHP.isIndentDecrement(raw_token)) {
+      if (printer.indent_level > 0) {
+        printer.indent_level--;
+      }
+    }
     printer.print_token(raw_token);
+    if (PHP.isIndentIncrement(raw_token)) {
+      printer.indent();
+    }
   }
   return parser_token;
 };
