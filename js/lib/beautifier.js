@@ -130,8 +130,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 var js_beautify = __webpack_require__(1);
-var css_beautify = __webpack_require__(16);
-var html_beautify = __webpack_require__(19);
+var css_beautify = __webpack_require__(17);
+var html_beautify = __webpack_require__(20);
 
 function style_html(html_source, options, js, css) {
   js = js || js_beautify;
@@ -237,6 +237,7 @@ var Tokenizer = __webpack_require__(8).Tokenizer;
 var line_starters = __webpack_require__(8).line_starters;
 var positionable_operators = __webpack_require__(8).positionable_operators;
 var TOKEN = __webpack_require__(8).TOKEN;
+var PHP = __webpack_require__(16).PHP;
 
 
 function in_array(what, arr) {
@@ -1218,7 +1219,13 @@ Beautifier.prototype.handle_word = function(current_token) {
   if (current_token.previous && (current_token.previous.type === TOKEN.WORD || current_token.previous.type === TOKEN.RESERVED)) {
     this._output.space_before_token = true;
   }
+  if (PHP.isIndentDecrement(current_token)) {
+    this.deindent();
+  }
   this.print_token(current_token);
+  if (PHP.isIndentIncrement(current_token)) {
+    this.indent()
+  }
   this._flags.last_word = current_token.text;
 
   if (current_token.type === TOKEN.RESERVED) {
@@ -3992,48 +3999,22 @@ module.exports.TemplatablePattern = TemplatablePattern;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/*jshint node:true */
-/*
-
-  The MIT License (MIT)
-
-  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
-
-  Permission is hereby granted, free of charge, to any person
-  obtaining a copy of this software and associated documentation files
-  (the "Software"), to deal in the Software without restriction,
-  including without limitation the rights to use, copy, modify, merge,
-  publish, distribute, sublicense, and/or sell copies of the Software,
-  and to permit persons to whom the Software is furnished to do so,
-  subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
-*/
 
 
-
-var Beautifier = __webpack_require__(17).Beautifier,
-  Options = __webpack_require__(18).Options;
-
-function css_beautify(source_text, options) {
-  var beautifier = new Beautifier(source_text, options);
-  return beautifier.beautify();
+var isIndentDecrement = function(raw_token) {
+    return raw_token.text === '<?php -1 ?>' || raw_token.text === '<?php 0 ?>';
 }
 
-module.exports = css_beautify;
-module.exports.defaultOptions = function() {
-  return new Options();
-};
+var isIndentIncrement = function(raw_token) {
+    return raw_token.text === '<?php 1 ?>' || raw_token.text === '<?php 0 ?>';
+}
+
+var PHP = {
+    isIndentIncrement: isIndentIncrement,
+    isIndentDecrement: isIndentDecrement,
+}
+
+module.exports.PHP = PHP;
 
 
 /***/ }),
@@ -4071,7 +4052,56 @@ module.exports.defaultOptions = function() {
 
 
 
-var Options = __webpack_require__(18).Options;
+var Beautifier = __webpack_require__(18).Beautifier,
+  Options = __webpack_require__(19).Options;
+
+function css_beautify(source_text, options) {
+  var beautifier = new Beautifier(source_text, options);
+  return beautifier.beautify();
+}
+
+module.exports = css_beautify;
+module.exports.defaultOptions = function() {
+  return new Options();
+};
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jshint node:true */
+/*
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+
+
+var Options = __webpack_require__(19).Options;
 var Output = __webpack_require__(3).Output;
 var InputScanner = __webpack_require__(9).InputScanner;
 var Directives = __webpack_require__(14).Directives;
@@ -4514,7 +4544,7 @@ module.exports.Beautifier = Beautifier;
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4567,55 +4597,6 @@ module.exports.Options = Options;
 
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/*jshint node:true */
-/*
-
-  The MIT License (MIT)
-
-  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
-
-  Permission is hereby granted, free of charge, to any person
-  obtaining a copy of this software and associated documentation files
-  (the "Software"), to deal in the Software without restriction,
-  including without limitation the rights to use, copy, modify, merge,
-  publish, distribute, sublicense, and/or sell copies of the Software,
-  and to permit persons to whom the Software is furnished to do so,
-  subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
-*/
-
-
-
-var Beautifier = __webpack_require__(20).Beautifier,
-  Options = __webpack_require__(21).Options;
-
-function style_html(html_source, options, js_beautify, css_beautify) {
-  var beautifier = new Beautifier(html_source, options, js_beautify, css_beautify);
-  return beautifier.beautify();
-}
-
-module.exports = style_html;
-module.exports.defaultOptions = function() {
-  return new Options();
-};
-
-
-/***/ }),
 /* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4650,10 +4631,60 @@ module.exports.defaultOptions = function() {
 
 
 
-var Options = __webpack_require__(21).Options;
+var Beautifier = __webpack_require__(21).Beautifier,
+  Options = __webpack_require__(22).Options;
+
+function style_html(html_source, options, js_beautify, css_beautify) {
+  var beautifier = new Beautifier(html_source, options, js_beautify, css_beautify);
+  return beautifier.beautify();
+}
+
+module.exports = style_html;
+module.exports.defaultOptions = function() {
+  return new Options();
+};
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jshint node:true */
+/*
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+
+
+var Options = __webpack_require__(22).Options;
 var Output = __webpack_require__(3).Output;
-var Tokenizer = __webpack_require__(22).Tokenizer;
-var TOKEN = __webpack_require__(22).TOKEN;
+var Tokenizer = __webpack_require__(23).Tokenizer;
+var TOKEN = __webpack_require__(23).TOKEN;
+var PHP = __webpack_require__(16).PHP;
 
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
@@ -5056,7 +5087,15 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
     printer.add_raw_token(raw_token);
   } else {
     printer.traverse_whitespace(raw_token);
+    if (PHP.isIndentDecrement(raw_token)) {
+      if (printer.indent_level > 0) {
+        printer.indent_level--;
+      }
+    }
     printer.print_token(raw_token);
+    if (PHP.isIndentIncrement(raw_token)) {
+      printer.indent();
+    }
   }
   return parser_token;
 };
@@ -5463,7 +5502,7 @@ module.exports.Beautifier = Beautifier;
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5561,7 +5600,7 @@ module.exports.Options = Options;
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
