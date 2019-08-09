@@ -1,5 +1,5 @@
 {
-  "name": "js-beautify",
+  "name": "@bmewburn/js-beautify",
   "version": "1.10.2",
   "description": "beautifier.io for node",
   "main": "js/index.js",
