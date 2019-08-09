@@ -1219,12 +1219,17 @@ Beautifier.prototype.handle_word = function(current_token) {
   if (current_token.previous && (current_token.previous.type === TOKEN.WORD || current_token.previous.type === TOKEN.RESERVED)) {
     this._output.space_before_token = true;
   }
-  if (PHP.isIndentDecrement(current_token)) {
-    this.deindent();
+  var phpIndent = PHP.getIndentLevelAdjustment(current_token);
+  if (phpIndent !== null && phpIndent < 1) {
+    for(let n = phpIndent || -1; n < 0; ++n) {
+      this.deindent();
+    }
   }
   this.print_token(current_token);
-  if (PHP.isIndentIncrement(current_token)) {
-    this.indent()
+  if (phpIndent !== null && phpIndent > -1) {
+    for (let n = phpIndent || 1; n > 0; --n) {
+      this.indent();
+    }
   }
   this._flags.last_word = current_token.text;
 
@@ -4001,17 +4006,36 @@ module.exports.TemplatablePattern = TemplatablePattern;
 "use strict";
 
 
-var isIndentDecrement = function(raw_token) {
-    return raw_token.text === '<?php -1 ?>' || raw_token.text === '<?php 0 ?>';
+var TAG_PATTERN = /^<\?php (-?\d+) \?>$/;
+
+var getIndentLevelAdjustment = function(raw_token) {
+    var match = raw_token.text.match(TAG_PATTERN);
+    if(!match) {
+        return null;
+    }
+    return parseInt(match[1]);
 }
 
-var isIndentIncrement = function(raw_token) {
-    return raw_token.text === '<?php 1 ?>' || raw_token.text === '<?php 0 ?>';
+var increaseIndentLevel = function(currentIndentLevel, phpIndentLevel) {
+    if(phpIndentLevel === 0) {
+        phpIndentLevel = 1;
+    }
+
+    return currentIndentLevel + phpIndentLevel;
+}
+
+var decreaseIndentLevel = function (currentIndentLevel, phpIndentLevel) {
+    if (phpIndentLevel === 0) {
+        phpIndentLevel = -1;
+    }
+
+    return Math.max(0, currentIndentLevel + phpIndentLevel);
 }
 
 var PHP = {
-    isIndentIncrement: isIndentIncrement,
-    isIndentDecrement: isIndentDecrement,
+    getIndentLevelAdjustment: getIndentLevelAdjustment,
+    increaseIndentLevel: increaseIndentLevel,
+    decreaseIndentLevel: decreaseIndentLevel
 }
 
 module.exports.PHP = PHP;
@@ -5087,14 +5111,13 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
     printer.add_raw_token(raw_token);
   } else {
     printer.traverse_whitespace(raw_token);
-    if (PHP.isIndentDecrement(raw_token)) {
-      if (printer.indent_level > 0) {
-        printer.indent_level--;
-      }
+    var phpIndent = PHP.getIndentLevelAdjustment(raw_token);
+    if (phpIndent !== null && phpIndent < 1) {
+      printer.indent_level = PHP.decreaseIndentLevel(printer.indent_level, phpIndent);
     }
     printer.print_token(raw_token);
-    if (PHP.isIndentIncrement(raw_token)) {
-      printer.indent();
+    if (phpIndent !== null && phpIndent > -1) {
+      printer.indent_level = PHP.increaseIndentLevel(printer.indent_level, phpIndent);
     }
   }
   return parser_token;

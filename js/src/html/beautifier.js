@@ -435,14 +435,13 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
     printer.add_raw_token(raw_token);
   } else {
     printer.traverse_whitespace(raw_token);
-    if (PHP.isIndentDecrement(raw_token)) {
-      if (printer.indent_level > 0) {
-        printer.indent_level--;
-      }
+    var phpIndent = PHP.getIndentLevelAdjustment(raw_token);
+    if (phpIndent !== null && phpIndent < 1) {
+      printer.indent_level = PHP.decreaseIndentLevel(printer.indent_level, phpIndent);
     }
     printer.print_token(raw_token);
-    if (PHP.isIndentIncrement(raw_token)) {
-      printer.indent();
+    if (phpIndent !== null && phpIndent > -1) {
+      printer.indent_level = PHP.increaseIndentLevel(printer.indent_level, phpIndent);
     }
   }
   return parser_token;

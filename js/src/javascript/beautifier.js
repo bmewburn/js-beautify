@@ -1018,12 +1018,17 @@ Beautifier.prototype.handle_word = function(current_token) {
   if (current_token.previous && (current_token.previous.type === TOKEN.WORD || current_token.previous.type === TOKEN.RESERVED)) {
     this._output.space_before_token = true;
   }
-  if (PHP.isIndentDecrement(current_token)) {
-    this.deindent();
+  var phpIndent = PHP.getIndentLevelAdjustment(current_token);
+  if (phpIndent !== null && phpIndent < 1) {
+    for(let n = phpIndent || -1; n < 0; ++n) {
+      this.deindent();
+    }
   }
   this.print_token(current_token);
-  if (PHP.isIndentIncrement(current_token)) {
-    this.indent()
+  if (phpIndent !== null && phpIndent > -1) {
+    for (let n = phpIndent || 1; n > 0; --n) {
+      this.indent();
+    }
   }
   this._flags.last_word = current_token.text;
 
