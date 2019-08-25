@@ -64,7 +64,7 @@ function get_beautify(js_beautify, css_beautify, html_beautify) {
   return beautify;
 }
 
-if (typeof define === "function" && define.amd) {
+if (typeof define === "function" && define.amd && false) {
   // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
   define([
     "./lib/beautify",
