@@ -31,10 +31,10 @@
 function Directives(start_block_pattern, end_block_pattern) {
   start_block_pattern = typeof start_block_pattern === 'string' ? start_block_pattern : start_block_pattern.source;
   end_block_pattern = typeof end_block_pattern === 'string' ? end_block_pattern : end_block_pattern.source;
-  this.__directives_block_pattern = new RegExp(start_block_pattern + /\s*@format-off\s*/.source + end_block_pattern, 'g');
+  this.__directives_block_pattern = new RegExp(start_block_pattern + /\s*@formatter:off\s*/.source + end_block_pattern, 'g');
   this.__directive_pattern = / (\w+)[:](\w+)/g;
 
-  this.__directives_end_ignore_pattern = new RegExp(start_block_pattern + /\s*@format-on\s*/.source + end_block_pattern, 'g');
+  this.__directives_end_ignore_pattern = new RegExp(start_block_pattern + /\s*@formatter:on\s*/.source + end_block_pattern, 'g');
 }
 
 Directives.prototype.get_directives = function(text) {
