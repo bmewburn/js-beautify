@@ -1,19 +1,13 @@
 {
   "name": "@bmewburn/js-beautify",
-  "version": "1.15.4",
+  "version": "1.15.4-beta",
   "description": "beautifier.io for node",
   "main": "js/index.js",
-  "bin": {
-    "css-beautify": "./js/bin/css-beautify.js",
-    "html-beautify": "./js/bin/html-beautify.js",
-    "js-beautify": "./js/bin/js-beautify.js"
-  },
   "directories": {
     "lib": "js/lib",
     "test": "js/test"
   },
   "files": [
-    "js/bin/",
     "js/lib/*.js",
     "js/lib/unpackers/",
     "js/index.js",
@@ -48,13 +42,7 @@
     "node": ">=14"
   },
   "browserslist": "ie 11",
-  "dependencies": {
-    "config-chain": "^1.1.13",
-    "editorconfig": "^1.0.4",
-    "glob": "^10.5.0",
-    "js-cookie": "^3.0.5",
-    "nopt": "^7.2.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "ansi-regex": "^6.0.1",
     "benchmark": "^2.1.4",
